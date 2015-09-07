@@ -5,6 +5,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
+	"encoding/binary"
 	"math/rand"
 	"time"
 
@@ -125,13 +126,18 @@ func CbcDecrypt(ciphertext, key, iv []byte) ([]byte, error) {
 
 // Ctr is as utility function for setting up a keystream for AES in
 // CTR mode
-func Ctr(iv, key []byte) (cipher.Stream, error) {
+func Ctr(nonce uint64, key []byte) (cipher.Stream, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
 	}
 
-	return cipher.NewCTR(block, iv), nil
+	iv := new(stdBytes.Buffer)
+	ctr := 0
+	_ = binary.Write(iv, binary.LittleEndian, nonce)
+	_ = binary.Write(iv, binary.LittleEndian, uint64(ctr))
+
+	return cipher.NewCTR(block, iv.Bytes()), nil
 }
 
 // NewAesKey generates a random AES key

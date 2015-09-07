@@ -4,7 +4,6 @@ import (
 	stdBytes "bytes"
 	"crypto/aes"
 	"encoding/base64"
-	"encoding/binary"
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
@@ -30,7 +29,7 @@ type Challenge struct {
 type Result interface{}
 
 func main() {
-	var done = []func() (Result, Result){c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18}
+	var done = []func() (Result, Result){c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19}
 
 	for i, chal := range done {
 		var c Challenge
@@ -603,19 +602,15 @@ func c18() (actual, expected Result) {
 	plaintext2 := make([]byte, len(plaintext))
 
 	nonce := 0
-	iv := new(stdBytes.Buffer)
-	_ = binary.Write(iv, binary.LittleEndian, uint64(nonce))
-	_ = binary.Write(iv, binary.LittleEndian, uint64(0))
-
 	// Encrypt...
-	stream, err := crypto.Ctr(iv.Bytes(), key)
+	stream, err := crypto.Ctr(uint64(nonce), key)
 	if err != nil {
 		log.Fatal(err)
 	}
 	stream.XORKeyStream(ciphertext, plaintext)
 
 	// Decrypt with a new key stream
-	stream, err = crypto.Ctr(iv.Bytes(), key)
+	stream, err = crypto.Ctr(uint64(nonce), key)
 	if err != nil {
 		log.Fatal(err)
 	}
