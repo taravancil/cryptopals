@@ -123,6 +123,17 @@ func CbcDecrypt(ciphertext, key, iv []byte) ([]byte, error) {
 	return plaintext, nil
 }
 
+// Ctr is as utility function for setting up a keystream for AES in
+// CTR mode
+func Ctr(iv, key []byte) (cipher.Stream, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	return cipher.NewCTR(block, iv), nil
+}
+
 // NewAesKey generates a random AES key
 func NewAesKey() []byte {
 	key, _ := bytes.Random(aes.BlockSize)
