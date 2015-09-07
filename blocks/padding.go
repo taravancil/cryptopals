@@ -49,8 +49,12 @@ func ValidPkcs7(b []byte) (bool, int, error) {
 	last := b[length-1 : length]
 	pad, n := binary.Uvarint(last)
 
-	if n <= 0 {
+	if n <= 0 || pad == 0 {
 		return false, 0, errors.New("no padding")
+	}
+
+	if pad > aes.BlockSize {
+		return false, 0, errors.New("last byte exceeds blocksize")
 	}
 
 	// Check that padding is as long as pad
