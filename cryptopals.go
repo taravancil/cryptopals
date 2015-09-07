@@ -4,6 +4,7 @@ import (
 	stdBytes "bytes"
 	"crypto/aes"
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
@@ -29,7 +30,7 @@ type Challenge struct {
 type Result interface{}
 
 func main() {
-	var done = []func() (Result, Result){c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17}
+	var done = []func() (Result, Result){c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18}
 
 	for i, chal := range done {
 		var c Challenge
@@ -82,8 +83,8 @@ func c2() (actual, expected Result) {
 }
 
 /* Single-byte XOR cipher
- * Given a string that has been XOR'd against a single character, find
- * the key and decrypt the string.
+* Given a string that has been XOR'd against a single character, find
+* the key and decrypt the string.
  */
 func c3() (actual, expected Result) {
 	input := "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
@@ -193,7 +194,7 @@ func c6() (actual, expected Result) {
 }
 
 /* Implement AES in ECB mode, then decrypt a ciphertext encrypted under
- * a known key.
+* a known key.
  */
 func c7() (actual, expected Result) {
 	input, _ := ioutil.ReadFile("input/7.txt")
@@ -264,9 +265,9 @@ func c10() (actual, expected Result) {
 }
 
 /* Implement an ECB/CBC detection oracle
- * Write a function that accepts input, appends 5-10 bytes before and
- * after the input, then encrypts it under a random AES key. It should
- * randomly choose to encrypt under CBC or ECB mode. Detect which.
+* Write a function that accepts input, appends 5-10 bytes before and
+* after the input, then encrypts it under a random AES key. It should
+* randomly choose to encrypt under CBC or ECB mode. Detect which.
  */
 func c11() (actual, expected Result) {
 	plaintext := []byte("Put your good face on, not foolin' no one. You're a jackrabbit underneath.")
@@ -288,9 +289,9 @@ func c11() (actual, expected Result) {
 }
 
 /* Byte-at-a-time ECB decryption
- * Create a modified oracle function that decrypts an unknown string encrypted
- * under ECB-mode with a consistent, but unknown key.
- * AES-128-ECB(known-string || unknown-string, key)
+* Create a modified oracle function that decrypts an unknown string encrypted
+* under ECB-mode with a consistent, but unknown key.
+* AES-128-ECB(known-string || unknown-string, key)
  */
 func c12() (actual, expected Result) {
 	expected = "Rollin' in my 5.0\nWith my rag-top down so my hair can blow\nThe girlies on standby waving just to say hi\nDid you stop? No, I just drove by\n\x01"
@@ -335,10 +336,10 @@ func c12() (actual, expected Result) {
 }
 
 /* ECB cut and paste
- * Make a profile_for function that takes an email address and returns
- * a user object encoded cookie-style (email=foo@bar.com&uid=10).
- * Encrypt the encoded profile with AES ECB, and *supply* this to the
- * "attacker". Find a way to create a valid admin profile.
+* Make a profile_for function that takes an email address and returns
+* a user object encoded cookie-style (email=foo@bar.com&uid=10).
+* Encrypt the encoded profile with AES ECB, and *supply* this to the
+* "attacker". Find a way to create a valid admin profile.
  */
 func c13() (actual, expected Result) {
 	expected = "email=XXXXXXXXXXXXXX&uid=1&role=admin"
@@ -380,8 +381,8 @@ func c13() (actual, expected Result) {
 }
 
 /* Byte-at-a-time ECB decryption
- * Same goal as #12, but prepend a random # of random bytes to input.
- * AES-128-ECB(random-#-bytes || input, key)
+* Same goal as #12, but prepend a random # of random bytes to input.
+* AES-128-ECB(random-#-bytes || input, key)
  */
 func c14() (actual, expected Result) {
 	expected = "Rollin' in my 5.0\nWith my rag-top down so my hair can blow\nThe girlies on standby waving just to say hi\nDid you stop? No, I just drove by\n\x01"
@@ -489,14 +490,14 @@ func c15() (actual, expected Result) {
 }
 
 /* CBC bitflipping attack
- * Create a function, that given an input, prepends:
- * "comment1=cooking%20MCs;userdata="
- * and appends:
- * ";comment2=%20like%20a%20pound%20of%20bacon"
- * , quotes out the ; and =, and pads and encrypts it under AES CBC.
- * Another function should decrypt the string and return true if
- * ";admin=true;" exists in the string. Modify the ciphertext to
- * make the second funcion return true.
+* Create a function, that given an input, prepends:
+* "comment1=cooking%20MCs;userdata="
+* and appends:
+* ";comment2=%20like%20a%20pound%20of%20bacon"
+* , quotes out the ; and =, and pads and encrypts it under AES CBC.
+* Another function should decrypt the string and return true if
+* ";admin=true;" exists in the string. Modify the ciphertext to
+* make the second funcion return true.
  */
 func c16() (actual, expected Result) {
 	key := crypto.NewAesKey()
@@ -520,9 +521,9 @@ func c16() (actual, expected Result) {
 }
 
 /* CBC padding oracle
- * Write a CBC padding oracle that decrypts a ciphertext and detects
- * if the plaintext is padded properly with PKCS#7. Choose a random line
- * from 17.txt, encrypt it, then decrypt it using the oracle.
+* Write a CBC padding oracle that decrypts a ciphertext and detects
+* if the plaintext is padded properly with PKCS#7. Choose a random line
+* from 17.txt, encrypt it, then decrypt it using the oracle.
  */
 func c17() (actual, expected Result) {
 	input, _ := ioutil.ReadFile("input/17.txt")
@@ -591,6 +592,36 @@ func c17() (actual, expected Result) {
 
 	decrypted, _ := crypto.CbcDecrypt(ciphertext, key, iv)
 	return string(plaintext), string(decrypted)
+}
+
+// Implement AES in CTR mode
+func c18() (actual, expected Result) {
+	plaintext := []byte("A-B-C. A-always, B-be, C-counting. Always be counting!")
+	key := []byte("YELLOW SUBMARINE")
+
+	ciphertext := make([]byte, len(plaintext))
+	plaintext2 := make([]byte, len(plaintext))
+
+	nonce := 0
+	iv := new(stdBytes.Buffer)
+	_ = binary.Write(iv, binary.LittleEndian, uint64(nonce))
+	_ = binary.Write(iv, binary.LittleEndian, uint64(0))
+
+	// Encrypt...
+	stream, err := crypto.Ctr(iv.Bytes(), key)
+	if err != nil {
+		log.Fatal(err)
+	}
+	stream.XORKeyStream(ciphertext, plaintext)
+
+	// Decrypt with a new key stream
+	stream, err = crypto.Ctr(iv.Bytes(), key)
+	if err != nil {
+		log.Fatal(err)
+	}
+	stream.XORKeyStream(plaintext2, ciphertext)
+
+	return string(plaintext2), string(plaintext)
 }
 
 func equal(actual, expected Result) bool {

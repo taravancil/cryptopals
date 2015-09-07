@@ -1,4 +1,5 @@
 # Matasano Crypto Challenges
+[http://cryptopals.com](http://cryptopals.com)
 
 ## Set 1: The basics
 - [x] 1. Convert hex to base64
@@ -22,7 +23,7 @@
 
 ## Set 3: Block crypto, cont'd.
 - [x] 17. The CBC padding oracle
-- [ ] 18. Implement CTR, the stream cipher mode
+- [x] 18. Implement CTR, the stream cipher mode
 - [ ] 19. Break fixed-nonce CTR mode using substitutions
 - [ ] 20. Break fixed-nonce CTR statistically
 - [ ] 21. Implement the MT19937 Mersenne Twister RNG
