@@ -214,3 +214,17 @@ func AppendSecretEncryptEcb(plaintext, key []byte, prefix bool) []byte {
 	ciphertext, _ := EcbEncrypt(plaintext, key)
 	return ciphertext
 }
+
+// CbcValidPadding decrypts a CBC-encrypted ciphertext and detects if the plaintext was padded correctly.
+func CbcPaddingOracle(ciphertext, iv []byte) (bool, error) {
+	plaintext, err := CbcDecrypt(ciphertext, GlobalAesKey, iv)
+	if err != nil {
+		return false, err
+	}
+
+	valid, _, _ := blocks.ValidPkcs7(plaintext)
+	if valid {
+		return true, nil
+	}
+	return false, nil
+}

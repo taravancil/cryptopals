@@ -8,7 +8,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"strings"
+	"time"
 
 	"github.com/taravancil/cryptopals/blocks"
 	"github.com/taravancil/cryptopals/bytes"
@@ -17,6 +19,9 @@ import (
 	"github.com/taravancil/cryptopals/utils"
 )
 
+var s = rand.NewSource(time.Now().UnixNano())
+var r = rand.New(s)
+
 type Challenge struct {
 	actual, expected Result
 }
@@ -24,7 +29,7 @@ type Challenge struct {
 type Result interface{}
 
 func main() {
-	var done = []func() (Result, Result){c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16}
+	var done = []func() (Result, Result){c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17}
 
 	for i, chal := range done {
 		var c Challenge
@@ -291,7 +296,7 @@ func c12() (actual, expected Result) {
 	expected = "Rollin' in my 5.0\nWith my rag-top down so my hair can blow\nThe girlies on standby waving just to say hi\nDid you stop? No, I just drove by\n\x01"
 
 	if crypto.GlobalAesKey == nil {
-		crypto.GlobalAesKey, _ = bytes.Random(aes.BlockSize)
+		crypto.GlobalAesKey = crypto.NewAesKey()
 	}
 	key := crypto.GlobalAesKey
 
@@ -512,6 +517,80 @@ func c16() (actual, expected Result) {
 
 	hasAdmin := profile.HasAdmin(encrypted, key, iv)
 	return hasAdmin, true
+}
+
+/* CBC padding oracle
+ * Write a CBC padding oracle that decrypts a ciphertext and detects
+ * if the plaintext is padded properly with PKCS#7. Choose a random line
+ * from 17.txt, encrypt it, then decrypt it using the oracle.
+ */
+func c17() (actual, expected Result) {
+	input, _ := ioutil.ReadFile("input/17.txt")
+	strs := strings.Split(string(input), "\n")
+	str := strs[r.Intn(10)]
+	decodedStr, _ := base64.StdEncoding.DecodeString(str)
+
+	if crypto.GlobalAesKey == nil {
+		crypto.GlobalAesKey = crypto.NewAesKey()
+	}
+	key := crypto.GlobalAesKey
+	iv, _ := bytes.Random(aes.BlockSize)
+
+	ciphertext, err := crypto.CbcEncrypt([]byte(decodedStr), key, iv)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	blocks, err := bytes.SplitIntoBlocks(ciphertext, aes.BlockSize)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var plaintext []byte
+
+	for n := 0; n < len(blocks); n++ {
+		block := blocks[n]
+		controlled := make([]byte, aes.BlockSize)
+		plaintextBlock := make([]byte, aes.BlockSize)
+		intermediate := make([]byte, aes.BlockSize)
+		prevBlock := make([]byte, aes.BlockSize)
+
+		if n == 0 {
+			prevBlock = iv
+		} else {
+			prevBlock = blocks[n-1]
+		}
+
+		for i := aes.BlockSize - 1; i >= 0; i-- {
+			paddingLen := aes.BlockSize - i
+			paddingByte := byte(paddingLen)
+
+			// Set the last paddingLen bytes of controlled to so that when decrypted,
+			// each will be a valid padding byte.
+			for j := 0; j < paddingLen; j++ {
+				controlled[i+j] = paddingByte ^ intermediate[i+j]
+			}
+
+			for b := 0; b <= 256; b++ {
+				controlled[i] = byte(b)
+				controlled := append(controlled, block...)
+				valid, _ := crypto.CbcPaddingOracle(controlled, iv)
+				if valid {
+					// The padding is valid and we control the ith byte of the
+					// block XORed with the intermediate state. XOR is an inverse
+					// operation so finding the ith byte of the intermediate state
+					// is as simple as:
+					intermediate[i] = paddingByte ^ controlled[i]
+					break
+				}
+			}
+			plaintextBlock[i] = prevBlock[i] ^ intermediate[i]
+		}
+		plaintext = append(plaintext, plaintextBlock...)
+	}
+
+	decrypted, _ := crypto.CbcDecrypt(ciphertext, key, iv)
+	return string(plaintext), string(decrypted)
 }
 
 func equal(actual, expected Result) bool {
