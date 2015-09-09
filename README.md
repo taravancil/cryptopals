@@ -26,7 +26,7 @@
 - [x] 18. Implement CTR, the stream cipher mode
 - [ ] 19. Break fixed-nonce CTR mode using substitutions
 - [ ] 20. Break fixed-nonce CTR statistically
-- [ ] 21. Implement the MT19937 Mersenne Twister RNG
+- [x] 21. Implement the MT19937 Mersenne Twister RNG
 - [ ] 22. Crack an MT19937 seed
 - [ ] 23. Clone an MT19937 RNG from its output
 - [ ] 24. Create the MT19937 stream cipher and break it
@@ -34,7 +34,9 @@
 
 
 ## Installing
-`go get github.com/taravancil/cryptopals`
+`go get github.com/taravancil/cryptopals` 
+
+Set up and run the challenges: `go install github.com/taravancil/cryptopals && cryptopals`
 
 ## Note
 If you find a mistake in one of my solutions, I welcome you to let me know! 
