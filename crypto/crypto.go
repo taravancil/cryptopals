@@ -108,3 +108,69 @@ func FindKeysizes(b []byte, n, minSize, maxSize int) ([]int, error) {
 	}
 	return keysizes, nil
 }
+
+func MT19937(seed int) (int, error) {
+	var w, r, s, u, t, b, c, d uint
+	n := 624
+	m := 397
+	w = 32
+	r = 31
+	s = 7
+	u = 11
+	t = 15
+	f := 1812433253
+	a := 0x9908b0df
+	b = 0x9d2c5680
+	d = 0xffffffff
+	c = 0xefc60000
+
+	mt := make([]int, n)
+	index := n + 1
+	lowerMask := (1 << r) - 1
+	upperMask := 1 << r
+
+	init := func(seed int) {
+		index = n
+		mt[0] = seed
+		for i := 1; i < n-1; i++ {
+			mt[i] = int(((f * mt[i-1]) ^ ((mt[i-1] >> (w - 2)) + i)) & lowerMask)
+		}
+	}
+
+	twist := func() {
+		for i := 0; i < n-1; i++ {
+			x := (mt[i] & upperMask) + (mt[(i+1)%n] & lowerMask)
+			xA := x >> 1
+			if (x % 2) != 0 {
+				xA = xA ^ a
+			}
+			mt[i] = mt[(i+m)%n] ^ xA
+		}
+		index = 0
+	}
+
+	extractNumber := func() (int, error) {
+		if index >= n {
+			if index > n {
+				return 0, errors.New("generator never seeded")
+			}
+			twist()
+		}
+
+		y := mt[index]
+		y = int(uint(y) ^ (uint(y)>>u)&d)
+		y = int(uint(y) ^ (uint(y)<<s)&b)
+		y = int(uint(y) ^ (uint(y)<<t)&c)
+		y = int(uint(y) ^ (uint(y) >> uint(1)))
+
+		index++
+		return y & lowerMask, nil
+	}
+
+	init(seed)
+	num, err := extractNumber()
+	if err != nil {
+		return 0, err
+	}
+	return num, nil
+}

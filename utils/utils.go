@@ -1,6 +1,10 @@
 package utils
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"math"
 	"strings"
@@ -34,6 +38,8 @@ var ENGLISH_FREQUENCIES = map[string]float64{
 	"J": .0010,
 	"Z": .0007,
 }
+
+var TRIGRAMS = []string{"THE", "ING", "HER", "ERE", "ENT", "THAT", "NTH", "WAS", "ETH", "FOR", "DTH"}
 
 // EnglishScore returns a numerical representation of the likelihood
 // that a given text is written in English. A higher score correlates
@@ -110,7 +116,7 @@ func Strip(b []byte) []byte {
 
 	for i := 0; i < len(b); i++ {
 		temp := b[i]
-		if temp >= 32 && temp != 127 {
+		if temp > 32 && temp != 127 {
 			keep[n] = temp
 			n++
 		}

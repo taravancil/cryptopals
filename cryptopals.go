@@ -19,7 +19,7 @@ import (
 	"github.com/taravancil/cryptopals/utils"
 )
 
-var s = rand.NewSource(time.Now().UnixNano())
+var s = rand.NewSource(time.Now().Unix())
 var r = rand.New(s)
 
 type Challenge struct {
@@ -29,7 +29,7 @@ type Challenge struct {
 type Result interface{}
 
 func main() {
-	var done = []func() (Result, Result){c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19}
+	var done = []func() (Result, Result){c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19, c20, c21}
 
 	for i, chal := range done {
 		var c Challenge
@@ -237,7 +237,7 @@ func c8() (actual, expected Result) {
 	return -1, expected
 }
 
-// Implement PKCS#7 padding
+// Implement PKCS#/ padding
 func c9() (actual, expected Result) {
 	input := "YELLOW SUBMARINE"
 	expected = "YELLOW SUBMARINE\x04\x04\x04\x04"
@@ -617,6 +617,71 @@ func c18() (actual, expected Result) {
 	stream.XORKeyStream(plaintext2, ciphertext)
 
 	return string(plaintext2), string(plaintext)
+}
+
+func c19() (actual, expected Result) {
+	return "not", "done"
+}
+
+/* Encrypt a set of strings in AES CTR mode using the same nonce
+ * Decrypt the resulting ciphertexts without the key or stream
+ */
+func c20() (actual, expected Result) {
+	input, _ := ioutil.ReadFile("input/20.txt")
+	output, _ := utils.ReadAndStripFile("output/20.txt")
+	expected = string(output)
+
+	strs := strings.Split(string(input), "\n")
+	n := len(strs)
+	strs = strs[:n-2]
+	key := crypto.NewAesKey()
+	nonce := uint64(0)
+
+	// Decode strings and find length of the shortest string
+	length := 1000
+	plaintexts := make([][]byte, len(strs))
+	for i, str := range strs {
+		decoded, _ := base64.StdEncoding.DecodeString(str)
+		if len(decoded) < length {
+			length = len(decoded)
+		}
+		plaintexts[i] = decoded
+	}
+
+	var concat []byte
+	for i, str := range plaintexts {
+		// Truncate each string to common length
+		plaintexts[i] = str[:length]
+
+		stream, err := crypto.Ctr(nonce, key)
+		if err != nil {
+			log.Println(err)
+		}
+
+		// Concatenate the ciphertexts
+		ciphertext := make([]byte, length)
+		stream.XORKeyStream(ciphertext, plaintexts[i])
+		concat = append(concat, ciphertext...)
+	}
+
+	l := []int{length}
+
+	plaintext, err := crypto.BreakXorRepeating(concat, l)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return string(utils.Strip(plaintext)), expected
+}
+
+func c21() (actual, expected Result) {
+	now := int(time.Now().Unix())
+	n, err := crypto.MT19937(now)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return n, n
 }
 
 func equal(actual, expected Result) bool {
