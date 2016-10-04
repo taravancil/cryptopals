@@ -11,3 +11,17 @@ def xor(b1, b2):
         result.append(b1[i] ^ b2[i])
 
     return bytes(result)
+
+def xor_repeating_key(_bytes, key):
+    """
+    Return the result of XORing a bytes object with a single-byte
+    key.
+    """
+    # Get mutable bytearray
+    _bytes = bytearray(_bytes)
+
+    for i in range(0, len(_bytes)):
+        tmp = _bytes[i]
+        _bytes[i] = tmp ^ key
+
+    return _bytes
