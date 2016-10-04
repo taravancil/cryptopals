@@ -6,8 +6,8 @@ def xor(b1, b2):
     if len(b1) != len(b2):
         raise Exception('bytes objects must have the same length')
 
-    result = ''
+    result = []
     for i in range(0, len(b1)):
-        result += b1[i] ^ b2[i]
+        result.append(b1[i] ^ b2[i])
 
-    return result
+    return bytes(result)
