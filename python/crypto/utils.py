@@ -13,5 +13,9 @@ def hex_to_bytes(hexstr):
     decoded = codecs.decode(hexstr, 'hex')
     return str_to_bytes(decoded)
 
+def bytes_to_hex(_bytes):
+    """Convert the given bytes object to a hex string."""
+    return _bytes.hex()
+
 def str_to_bytes(s):
     return bytes(s)
