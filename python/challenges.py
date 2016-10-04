@@ -37,4 +37,22 @@ def chal1():
 
     expect(utils.hex_to_base64(IN), OUT)
 
-    
+@challenge(2)
+def chal2():
+    """XOR two equal-length buffers."""
+    IN1 = '1c0111001f010100061a024b53535009181c'
+    IN2 = '686974207468652062756c6c277320657965'
+    OUT = '746865206b696420646f6e277420706c6179'
+
+    b1 = utils.hex_to_bytes(IN1)
+    b2 = utils.hex_to_bytes(IN2)
+
+    result = crypto.xor(b1, b2)
+    print(result)
+
+    # The expected output is hex-encoded
+    expect(utils.bytes_to_hex(result), OUT)
+
+if __name__ == '__main__':
+    for n in CHALLENGES.keys():
+        CHALLENGES[n]()
