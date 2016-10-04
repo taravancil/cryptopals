@@ -2,6 +2,23 @@
 """Utilities and wrappers for encoding and decoding."""
 
 import codecs
+import math
+
+# Frequencies distribution of the most common 11 letters in the
+# English language
+ENGLISH_FREQUENCIES = {
+    'E': .1202,
+    'T': .0910,
+    'A': .0812,
+    'O': .0768,
+    'I': .0731,
+    'N': .0695,
+    'S': .0628,
+    'R': .0602,
+    'H': .0592,
+    'D': .0432,
+    'L': .0398,
+}
 
 def hex_to_base64(hexstr):
     """Convert the given string to base64."""
@@ -51,3 +68,27 @@ def get_popular_byte(_bytes):
             result = i
 
     return result
+
+def english_score(string):
+    """
+    Return a score that indicates the likelihood that a given
+    string is written in English. Higher score indicates higher
+    likelihood.
+    """
+    # frequencies = {}
+    string = string.upper()
+    total_chars = len(string)
+    score = 0
+
+    # Count the occurrences of each letter in the input strin
+    for char in ENGLISH_FREQUENCIES:
+        count = string.count(char)
+        char_score = count/total_chars
+        # frequencies[char] = char_score
+
+        # Calculate how similar the calculated distribution is to the
+        # distribution in ENGLISH_FREQUENCIES. The smaller the
+        # distance, the higher the score.
+        score += math.sqrt(char_score * ENGLISH_FREQUENCIES[char])
+
+    return score

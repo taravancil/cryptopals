@@ -76,6 +76,33 @@ def chal3():
 
     expect(plaintext.decode('utf-8'), OUT.decode('utf-8'))
 
+@challenge(4)
+def chal4():
+    """
+    One of the 60-character strings in input/4.txt has been
+    encrypted with single-character XOR. Find it and decrypt it.
+    """
+    f = open('input/4.txt')
+    OUT = b'nOW\x00THAT\x00THE\x00PARTY\x00IS\x00JUMPING*'
+    best_score = 0
+    result = ''
+
+    for line in f:
+        ciphertext = utils.hex_to_bytes(line.strip())
+
+        # Assume the most popular byte in the ciphertext is the key
+        key = utils.get_popular_byte(ciphertext)
+
+        # Try the key
+        plaintext_bytes = crypto.xor_repeating_key(ciphertext, key)
+
+        score = utils.english_score(str(plaintext_bytes))
+        if score > best_score:
+            best_score = score
+            result = plaintext_bytes
+
+    expect(result.decode('utf-8'), OUT.decode('utf-8'))
+
 if __name__ == '__main__':
     for n in CHALLENGES.keys():
         CHALLENGES[n]()
