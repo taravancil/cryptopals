@@ -97,6 +97,9 @@ def chal4():
         plaintext_bytes = crypto.xor_repeating_key(ciphertext, key)
 
         score = utils.english_score(str(plaintext_bytes))
+
+        # The decrypted string that looks most like English is most
+        # likely the one we're looking for
         if score > best_score:
             best_score = score
             result = plaintext_bytes
