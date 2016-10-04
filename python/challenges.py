@@ -53,6 +53,29 @@ def chal2():
     # The expected output is hex-encoded
     expect(utils.bytes_to_hex(result), OUT)
 
+@challenge(3)
+def chal3():
+    """The input has been XORed against a single character. Find the
+    key, decrypt the message.
+    """
+    IN = '1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a' \
+         '393b3736'
+    OUT = b'cOOKING\x00mc\x07S\x00LIKE\x00A\x00POUND\x00OF\x00BACON'
+    ciphertext = utils.hex_to_bytes(IN)
+
+    # I forgot how I figured this out in my Golang implementation, but
+    # it turns out there are a bunch of null bytes in the
+    # plaintext. A NULL byte in binary is 000000 so when you XOR it
+    # with any byte, you get the byte. So in this case, because the
+    # NULL byte occurs most frequently in the plaintext, in the
+    # ciphertext the key is the most common byte. TODO how in the heck
+    # do I figure this out with frequency analysis and without advance
+    # knowledge of the fact that there are a bunch of NULL bytes?
+    key = utils.get_popular_byte(ciphertext)
+    plaintext = crypto.xor_repeating_key(ciphertext, key)
+
+    expect(plaintext.decode('utf-8'), OUT.decode('utf-8'))
+
 if __name__ == '__main__':
     for n in CHALLENGES.keys():
         CHALLENGES[n]()
