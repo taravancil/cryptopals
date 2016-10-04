@@ -1,16 +1,16 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """Solutions to the Matasano crypto challenges (cryptopals.com)."""
-from crypto import utils
+from crypto import crypto, utils
 
 CHALLENGES = {}
 def challenge(n):
     """Wrapper for challenges."""
     def decorator(f):
         def wrapper(*args, **kwargs):
-            print '--------------'
-            print 'Challenge %d' % n
-            print '--------------'
+            print('--------------')
+            print('Challenge %d' % n)
+            print('--------------')
             f(*args, **kwargs)
         CHALLENGES[n] = wrapper
         return wrapper
@@ -19,13 +19,13 @@ def challenge(n):
 def expect(actual, expected):
     """Compare actual to expected and print feedback."""
     if actual != expected:
-        print u'\u2718 Failed'
-        print 'Got:\n{}'.format(actual)
-        print 'Expected:\n{}'.format(expected)
+        print(u'\u2718 Failed')
+        print('Got:\n{}'.format(actual))
+        print('Expected:\n{}'.format(expected))
         return
 
-    print u'\u2713 Success!'
-    print actual
+    print(u'\u2713 Success!')
+    print(actual)
 
 @challenge(1)
 def chal1():
@@ -37,6 +37,4 @@ def chal1():
 
     expect(utils.hex_to_base64(IN), OUT)
 
-if __name__ == '__main__':
-    for n in CHALLENGES.keys():
-        CHALLENGES[n]()
+    
