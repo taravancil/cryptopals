@@ -40,6 +40,11 @@ def bytes_to_hex(_bytes):
 def str_to_bytes(s):
     return bytes(s)
 
+def base64_to_bytes(base64str):
+    """Decode the given base64-encoded string and return a bytes object."""
+    _bytes = bytes(base64str, 'utf-8')
+    return codecs.encode(_bytes, 'base64')
+
 def get_popular_byte(_bytes):
     """
     Return the most popular byte in a bytes object. O(n) time when k
@@ -72,7 +77,7 @@ def get_popular_byte(_bytes):
 def english_score(string):
     """
     Return a score that indicates the likelihood that a given
-    string is written in English. Higher score indicates higher
+    string is written in English. Higher score indicates highers
     likelihood.
     """
     # frequencies = {}
