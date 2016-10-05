@@ -83,6 +83,7 @@ def chal4():
     encrypted with single-character XOR. Find it and decrypt it.
     """
     f = open('input/4.txt')
+    # TODO Fenimore's suggestion about using an uppercase key
     OUT = b'nOW\x00THAT\x00THE\x00PARTY\x00IS\x00JUMPING*'
     best_score = 0
     result = ''
