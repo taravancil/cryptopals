@@ -98,16 +98,12 @@ def english_score(string):
 
     return score
 
-def hamming_distance(string1, string2):
-    """Return the Hamming distance of two strings."""
-    if len(string1) != len(string2):
+def hamming_distance(bytes1, bytes2):
+    """Return the Hamming distance of two bytes objects."""
+    if len(bytes1) != len(bytes2):
         raise Exception("Input strings must be the same length")
 
     distance = 0
-
-    # Convert the strings to bytes
-    bytes1 = bytes(string1, 'utf-8')
-    bytes2 = bytes(string2, 'utf-8')
 
     for i in range(0, len(bytes1)):
         # Hamming distance indicates the difference between two
