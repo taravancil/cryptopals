@@ -2,6 +2,7 @@
 """Utilities and wrappers for encoding and decoding."""
 
 import codecs
+import itertools
 import math
 
 # Frequencies distribution of the most common 11 letters in the
@@ -131,3 +132,56 @@ def hamming_weight(x):
     x = (x & m2) + ((x >> 2) & m2)
     x = (x + (x >> 4)) & m4
     return (x * h01) >> 56
+
+def find_possible_keysizes(ciphertext, n, min_keysize, max_keysize):
+    """
+    Return a list of n possible keysizes in range(min_keysize,
+    max_keysize + 1).
+
+    For each keysize in range(min_keysize, max_keysize + 1), take the
+    first 4 keysize blocks, find the Hamming distance between each
+    possible pair of blocks, and normalize the Hamming distance.
+
+    The n keysizes with the smallest normalized Hamming distance are
+    the candidates.
+    """
+    # Check the inputs' length requirements
+    if n == 0 or len(ciphertext) == 0:
+        return []
+
+    if min_keysize >= max_keysize:
+        raise Exception("max_keysize must be greater than min_keysize")
+
+    if max_keysize * 4 > len(ciphertext):
+        raise Exception(
+            "The ciphertext is not long enough to analyze")
+
+    # Initialize a dictionary of minimum normalized Hamming distances to a
+    # large number
+    min_dists = {0: 1000, 1: 1001, 3: 1002}
+
+    for size in range(min_keysize, max_keysize + 1):
+        # Get a list of the first 4 blocks of length size
+        blocks = [ciphertext[i:i + size] for i in range(0, size*4, size)]
+
+        # Get a list of all 2-block combinations in blocks
+        block_combos = itertools.combinations(blocks, 2)
+
+        # Calculate the Hamming distance for each 2-block combination
+        dists_sum = 0
+        for pair in block_combos:
+            dists_sum += hamming_distance(pair[0], pair[1])
+
+        # Get the normalized distance
+        normalized_dist = dists_sum / 6 # 6 = number of combinations
+
+        # The key of the highest value in min_dists
+        max_key = max(min_dists, key=min_dists.get)
+
+        # If dist is smaller than the max value in min_dists, remove
+        # the old max and add dist to the object
+        if normalized_dist < min_dists[max_key]:
+            del min_dists[max_key]
+            min_dists[size] = normalized_dist
+
+    return min_dists.keys()
