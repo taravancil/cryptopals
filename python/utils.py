@@ -172,8 +172,8 @@ def find_possible_keysizes(ciphertext, n, min_keysize, max_keysize):
         for pair in block_combos:
             dists_sum += hamming_distance(pair[0], pair[1])
 
-        # Get the normalized distance
-        normalized_dist = dists_sum / 6 # 6 = number of combinations
+        # Get the normalized distance; 6 = number of combinations; 
+        normalized_dist = dists_sum / 6 / size
 
         # The key of the highest value in min_dists
         max_key = max(min_dists, key=min_dists.get)
