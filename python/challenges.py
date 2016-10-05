@@ -72,7 +72,7 @@ def chal3():
     # do I figure this out with frequency analysis and without advance
     # knowledge of the fact that there are a bunch of NULL bytes?
     key = utils.get_popular_byte(ciphertext)
-    plaintext = crypto.xor_repeating_key(ciphertext, key)
+    plaintext = crypto.xor(ciphertext, key)
 
     expect(plaintext.decode('utf-8'), OUT.decode('utf-8'))
 
@@ -94,7 +94,7 @@ def chal4():
         key = utils.get_popular_byte(ciphertext)
 
         # Try the key
-        plaintext_bytes = crypto.xor_repeating_key(ciphertext, key)
+        plaintext_bytes = crypto.xor(ciphertext, key)
 
         score = utils.english_score(str(plaintext_bytes))
 

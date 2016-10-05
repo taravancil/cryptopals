@@ -12,7 +12,7 @@ def xor(b1, b2):
 
     return bytes(result)
 
-def xor_repeating_key(_bytes, key):
+def xor(_bytes, key):
     """
     Return the result of XORing a bytes object with a single-byte
     key.
