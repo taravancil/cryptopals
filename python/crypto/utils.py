@@ -92,3 +92,41 @@ def english_score(string):
         score += math.sqrt(char_score * ENGLISH_FREQUENCIES[char])
 
     return score
+
+def hamming_distance(string1, string2):
+    """Return the Hamming distance of two strings."""
+    if len(string1) != len(string2):
+        raise Exception("Input strings must be the same length")
+
+    distance = 0
+
+    # Convert the strings to bytes
+    bytes1 = bytes(string1, 'utf-8')
+    bytes2 = bytes(string2, 'utf-8')
+
+    for i in range(0, len(bytes1)):
+        # Hamming distance indicates the difference between two
+        # inputs. When we XOR corresponding bits, a 1 indicates that
+        # the corresponding bits are not equal. We can count the
+        # number of mismatched bits in a byte by calculating the
+        # Hamming weight (basically the number of 1s in a byte) of the
+        # result of XORing bytes1[i] with bytes2[i]
+        distance += hamming_weight(bytes1[i] ^ bytes2[i])
+
+    return distance
+
+def hamming_weight(x):
+    """
+    Return the Hamming weight of a given byte.
+
+    Constants are from https://wikipedia.org/wiki/Hamming_weight.
+    """
+    m1 = 0x5555555555555555
+    m2 = 0x3333333333333333
+    m4 = 0x0f0f0f0f0f0f0f0f
+    h01 = 0x0101010101010101
+
+    x -= (x >> 1) & m1
+    x = (x & m2) + ((x >> 2) & m2)
+    x = (x + (x >> 4)) & m4
+    return (x * h01) >> 56
