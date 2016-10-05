@@ -106,6 +106,22 @@ def chal4():
 
     expect(result.decode('utf-8'), OUT.decode('utf-8'))
 
+@challenge(5)
+def chal5():
+    """Encrypt the input under the key 'ICE' using repeating-key XOR."""
+    IN = "Burning 'em, if you ain't quick and nimble\nI go crazy" \
+         " when I hear a cymbal"
+    OUT = '0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a2622' \
+          '6324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c69' \
+          '2b20283165286326302e27282f'
+    KEY = 'ICE'
+
+    ciphertext = crypto.xor_repeating_key(bytes(IN, 'utf-8'),
+                                          bytes(KEY, 'utf-8'))
+    result = utils.bytes_to_hex(ciphertext)
+
+    expect(result, OUT)
+
 if __name__ == '__main__':
     for n in CHALLENGES.keys():
         CHALLENGES[n]()

@@ -12,7 +12,7 @@ def xor(b1, b2):
 
     return bytes(result)
 
-def xor(_bytes, key):
+def xor_single_byte_key(_bytes, key):
     """
     Return the result of XORing a bytes object with a single-byte
     key.
@@ -23,5 +23,22 @@ def xor(_bytes, key):
     for i in range(0, len(_bytes)):
         tmp = _bytes[i]
         _bytes[i] = tmp ^ key
+
+    return _bytes
+
+def xor_repeating_key(_bytes, key):
+    key_len = len(key)
+    key_idx = 0
+
+    # Get mutable bytearray
+    _bytes = bytearray(_bytes)
+
+    for i in range(0, len(_bytes)):
+        # Reset the key index
+        if key_idx == key_len:
+            key_idx = 0
+
+        _bytes[i] = _bytes[i] ^ key[key_idx]
+        key_idx += 1
 
     return _bytes
