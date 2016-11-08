@@ -120,11 +120,70 @@ def chal5():
           '2b20283165286326302e27282f'
     KEY = 'ICE'
 
-    ciphertext = crypto.xor_repeating_key(bytes(IN, 'utf-8'),
+    ciphertext = _crypto.xor_repeating_key(bytes(IN, 'utf-8'),
                                           bytes(KEY, 'utf-8'))
     result = utils.bytes_to_hex(ciphertext)
 
     expect(result, OUT)
+
+@challenge(6)
+def chal6():
+    """
+    The text in input/6.txt has been base64 encoded after being
+    encrypted with repeating-key XOR. Decrypt it.
+    """
+    f = open('input/6.txt')
+    ciphertext = utils.base64_to_bytes(f.read())
+
+    best_english_score = 0
+    result = ''
+
+    keysizes = utils.find_possible_keysizes(ciphertext, 3, 2, 40)
+    for keysize in keysizes:
+        key = [0] * keysize
+
+        # Split the ciphertext into blocks of length keysize
+        blocks = [ciphertext[i:i+keysize] for i in range(0,
+    len(ciphertext), keysize)]
+
+        # Transpose the blocks
+        transposed = [bytes(t) for t in zip_longest(*blocks,
+        fillvalue=0)]
+
+        # Treat each block as if it's been encrypted with a
+        # repeating-key XOR
+        for i in range(0, len(transposed)-1):
+            key[i] = utils.get_popular_byte(transposed[i])
+
+        plaintext = _crypto.xor_repeating_key(ciphertext, bytes(key))
+        english_score = utils.english_score(plaintext.decode('utf-8'))
+
+        if english_score > best_english_score:
+            result = plaintext.decode('utf-8')
+
+@challenge(7)
+def chal7():
+    """
+    The text in input/7.txt has been encrypted with AES-128 in ECB
+    mode under the key YELLOW SUBMARINE and base64-encoded. Decrypt
+    it.
+    """
+    KEY = 'YELLOW SUBMARINE'
+    INPUT = open('input/7.txt').read()
+    OUTPUT = open('output/7.txt').read()
+
+    ciphertext = base64.b64decode(INPUT)
+    cipher = AES.new(KEY, AES.MODE_ECB)
+
+    # Why the heck does each line in the plaintext have extra
+    # whitespace at the end?
+    plaintext = utils.strip_unprintable(cipher.decrypt(ciphertext).decode('utf-8'))
+    lines = plaintext.split('\n')
+    result = ''
+    for line in lines:
+        result += line.rstrip(' ') + '\n'
+
+    expect(result, OUTPUT)
 
 if __name__ == '__main__':
     for n in CHALLENGES.keys():
