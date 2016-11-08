@@ -1,7 +1,11 @@
 #!/usr/bin/python3
 
 """Solutions to the Matasano crypto challenges (cryptopals.com)."""
-from crypto import crypto, utils
+import base64
+from _crypto import _crypto
+from Crypto.Cipher import AES
+from itertools import zip_longest
+import utils
 
 CHALLENGES = {}
 def challenge(n):

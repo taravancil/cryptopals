@@ -4,6 +4,7 @@
 import codecs
 import itertools
 import math
+import string
 
 # Frequencies distribution of the most common 11 letters in the
 # English language
@@ -21,8 +22,8 @@ ENGLISH_FREQUENCIES = {
     'L': .0398,
 }
 
-def remove_unprintable_ascii(string):
-    return ''.join(c for c in string if ord(c) >= 32)
+def strip_unprintable(str):
+    return ''.join(filter(lambda c: c in string.printable, str))
 
 def hex_to_base64(hexstr):
     """Convert the given string to base64."""
