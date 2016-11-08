@@ -21,6 +21,9 @@ ENGLISH_FREQUENCIES = {
     'L': .0398,
 }
 
+def remove_unprintable_ascii(string):
+    return ''.join(c for c in string if ord(c) >= 32)
+
 def hex_to_base64(hexstr):
     """Convert the given string to base64."""
 
