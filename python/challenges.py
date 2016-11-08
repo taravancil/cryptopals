@@ -203,6 +203,13 @@ def chal8():
 
     expect(result, 132)
 
+@challenge(9)
+def chal9():
+    """Implement PKCS#7 padding"""
+    INPUT = b'YELLOW SUBMARINE'
+    OUTPUT = b'YELLOW SUBMARINE\x04\x04\x04\x04'
+
+    expect(blocks.pad(INPUT, 20), OUTPUT)
 
 if __name__ == '__main__':
     for n in CHALLENGES.keys():
