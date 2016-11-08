@@ -2,7 +2,7 @@
 
 """Solutions to the Matasano crypto challenges (cryptopals.com)."""
 import base64
-from _crypto import _crypto
+from _crypto import _crypto, blocks
 from Crypto.Cipher import AES
 from itertools import zip_longest
 import utils
@@ -184,6 +184,25 @@ def chal7():
         result += line.rstrip(' ') + '\n'
 
     expect(result, OUTPUT)
+
+@challenge(8)
+def chal8():
+    """
+    One of the lines in input/8.txt is encrypted with AES in ECB
+    mode. Detect it.
+    """
+    INPUT = open('input/8.txt').read()
+
+    result = -1
+
+    for (i, line) in enumerate(INPUT.split('\n')):
+        # if the line has a repeated block, it's probably encrypted
+        # in ECB mode
+        if blocks.has_repeated_block(bytes(line, 'utf-8'), 16):
+            result = i
+
+    expect(result, 132)
+
 
 if __name__ == '__main__':
     for n in CHALLENGES.keys():
