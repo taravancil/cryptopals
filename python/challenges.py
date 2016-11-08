@@ -51,8 +51,7 @@ def chal2():
     b1 = utils.hex_to_bytes(IN1)
     b2 = utils.hex_to_bytes(IN2)
 
-    result = crypto.xor(b1, b2)
-    print(result)
+    result = _crypto.xor(b1, b2)
 
     # The expected output is hex-encoded
     expect(utils.bytes_to_hex(result), OUT)
@@ -76,7 +75,7 @@ def chal3():
     # do I figure this out with frequency analysis and without advance
     # knowledge of the fact that there are a bunch of NULL bytes?
     key = utils.get_popular_byte(ciphertext)
-    plaintext = crypto.xor_single_byte_key(ciphertext, key)
+    plaintext = _crypto.xor_single_byte_key(ciphertext, key)
 
     expect(plaintext.decode('utf-8'), OUT.decode('utf-8'))
 
@@ -99,7 +98,7 @@ def chal4():
         key = utils.get_popular_byte(ciphertext)
 
         # Try the key
-        plaintext_bytes = crypto.xor_single_byte_key(ciphertext, key)
+        plaintext_bytes = _crypto.xor_single_byte_key(ciphertext, key)
 
         score = utils.english_score(str(plaintext_bytes))
 
